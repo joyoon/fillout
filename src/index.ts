@@ -43,7 +43,7 @@ app.get('/:formId/filteredResponses', (req: any, res: any) => {
         const responses = resp.data.responses
         const responseFilters: ResponseFilter[] = filtersParsed.length ? GetResponseFilters(filtersParsed) : []
 
-        let filteredResponses = responseFilters.length ? FilterResponses(responses, responseFilters) : responses
+        const filteredResponses = responseFilters.length ? FilterResponses(responses, responseFilters) : responses
         const pageCount = limit ? PageCount(filteredResponses.length, limit) : PageCount(filteredResponses.length)
 
         res.send({ responses: filteredResponses, totalResponses: filteredResponses.length, pageCount: pageCount })
