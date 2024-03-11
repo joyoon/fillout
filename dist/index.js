@@ -38,12 +38,7 @@ app.get('/:formId/filteredResponses', (req, res) => {
         .then((resp) => {
         const responses = resp.data.responses;
         const responseFilters = filtersParsed.length ? (0, ResponseFilter_js_1.GetResponseFilters)(filtersParsed) : [];
-        let filteredResponses = responseFilters.length ? (0, ResponseFilter_js_1.FilterResponses)(responses, responseFilters) : responses;
-        filteredResponses = [{ "submissionId": "ab9959b2-73e8-4994-85b9-56e780b89ce3",
-                "submissionTime": "2024-02-27T19:37:08.228Z" }, { "submissionId": "ab9959b2-73e8-4994-85b9-56e780b89ce3",
-                "submissionTime": "2024-02-27T19:37:08.228Z" }, { "submissionId": "ab9959b2-73e8-4994-85b9-56e780b89ce3",
-                "submissionTime": "2024-02-27T19:37:08.228Z" }, { "submissionId": "ab9959b2-73e8-4994-85b9-56e780b89ce3",
-                "submissionTime": "2024-02-27T19:37:08.228Z" }];
+        const filteredResponses = responseFilters.length ? (0, ResponseFilter_js_1.FilterResponses)(responses, responseFilters) : responses;
         const pageCount = limit ? (0, PageCount_js_1.PageCount)(filteredResponses.length, limit) : (0, PageCount_js_1.PageCount)(filteredResponses.length);
         res.send({ responses: filteredResponses, totalResponses: filteredResponses.length, pageCount: pageCount });
     });
