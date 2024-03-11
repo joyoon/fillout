@@ -1,26 +1,17 @@
 import axios from 'axios'
 const qs = require('qs')
 const express = require('express')
+const dotenv = require('dotenv')
 import { FilterClauseType } from './FilterClauseType.js'
-import { ResponseFilter } from './ResponseFilter.js'
-import { ResponseFiltersType } from './ResponseFiltersType.js'
+import { FilterResponses, GetResponseFilters } from './ResponseFilter.js'
 import { Question } from './Question.js'
+import { ResponseFilter } from './ResponseFiltersType.js'
+
+dotenv.config()
 const app = express()
 
-app.get('/:formId/filteredResponses', function (req: any, res: any) {
-  const token = 'sk_prod_TfMbARhdgues5AuIosvvdAC9WsA5kXiZlW8HZPaRDlIbCpSpLsXBeZO7dCVZQwHAY3P4VSBPiiC33poZ1tdUj2ljOzdTCCOSpUZ_3912'
-  const header = `Authorization: Bearer ${token}`
-  const apiBase = 'https://api.fillout.com/v1/api/forms'
-
-  const fakeFilters: FilterClauseType[] = [
-    { id: 'nameId', condition: 'equals', value: 'Timmy' },
-    { id: 'dateId', condition: 'less_than', value: '2024-02-23T05:01:47.691Z' }
-  ]
-
-  // console.log(JSON.stringify(fakeFilters))
-
+app.get('/:formId/filteredResponses', (req: any, res: any) => {
   const formId = req.params.formId
-
   const limit = req.query.limit || undefined
   const afterDate = req.query.afterDate || undefined
   const beforeDate = req.query.beforeDate || undefined
@@ -29,8 +20,7 @@ app.get('/:formId/filteredResponses', function (req: any, res: any) {
   const includeEditLink = req.query.includeEditLink || undefined
   const sort = req.query.sort || undefined
   const filters = req.query.filters || undefined
-
-  const filtersParsed: FilterClauseType[] = filters && filters.length ? JSON.parse(filters) : undefined
+  const filtersParsed: FilterClauseType[] = filters && filters.length ? JSON.parse(filters) : []
 
   const queryString = qs.stringify({
     limit: limit,
@@ -42,22 +32,21 @@ app.get('/:formId/filteredResponses', function (req: any, res: any) {
     sort: sort
   })
 
-    axios.get(`${apiBase}/${formId}/submissions?${qs}`, { headers: { "Authorization": header } })
-      .then( (res) => {
-    console.log(JSON.stringify(res.data));
+    const token = process.env.API_KEY
+    const header = `Authorization: Bearer ${token}`
+    const apiBase = process.env.API_BASE
 
-    const responses: [] = res.data
+    axios.get(`${apiBase}/${formId}/submissions?${queryString}`, { headers: { "Authorization": header } })
+      .then((resp: any) => {
 
-    // filter
-    if (filtersParsed) {
-      // console.log(filtersParsed)
+        let responses = resp.data.responses
+        const pageCount = resp.data.pageCount
+        const responseFilters: ResponseFilter[] = filtersParsed.length ? GetResponseFilters(filtersParsed) : []
 
-      let isFiltered: boolean = false
-      const submissionIds: string[] = []
+        let filteredResponses = responseFilters.length ? FilterResponses(responses, responseFilters) : responses
+        console.log(`filteredResponses: ${JSON.stringify(filteredResponses)}`)
 
-      // iterate responses
-        // 
-    }
+       res.send(filteredResponses)
   })
 })
 

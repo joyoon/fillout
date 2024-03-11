@@ -1,5 +1,7 @@
-import { ResponseFilter } from "./ResponseFilter";
+import { Question } from "./Question";
+
+type ResponseFilter = (questions: Question[]) => boolean
 
 type ResponseFiltersType = ResponseFilter[]
 
-export { ResponseFiltersType };
+export { ResponseFilter, ResponseFiltersType };
