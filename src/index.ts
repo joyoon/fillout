@@ -6,6 +6,7 @@ import { FilterClauseType } from './FilterClauseType.js'
 import { FilterResponses, GetResponseFilters } from './ResponseFilter.js'
 import { Question } from './Question.js'
 import { ResponseFilter } from './ResponseFiltersType.js'
+import { PageCount } from './PageCount.js'
 
 dotenv.config()
 const app = express()
@@ -39,14 +40,13 @@ app.get('/:formId/filteredResponses', (req: any, res: any) => {
     axios.get(`${apiBase}/${formId}/submissions?${queryString}`, { headers: { "Authorization": header } })
       .then((resp: any) => {
 
-        let responses = resp.data.responses
-        const pageCount = resp.data.pageCount
+        const responses = resp.data.responses
         const responseFilters: ResponseFilter[] = filtersParsed.length ? GetResponseFilters(filtersParsed) : []
 
         let filteredResponses = responseFilters.length ? FilterResponses(responses, responseFilters) : responses
-        console.log(`filteredResponses: ${JSON.stringify(filteredResponses)}`)
+        const pageCount = limit ? PageCount(filteredResponses.length, limit) : PageCount(filteredResponses.length)
 
-       res.send(filteredResponses)
+        res.send({ responses: filteredResponses, totalResponses: filteredResponses.length, pageCount: pageCount })
   })
 })
 
